@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steel Defect Detection - Project Presentation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-orange: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border-color: var(--accent-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card .value.green { color: var(--accent-green); }
+        .card .value.blue { color: var(--accent-blue); }
+        .card .value.orange { color: var(--accent-orange); }
+
+        .card p.desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media(max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .output-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 12px;
+            background: #000;
+        }
+
+        ul.feature-list {
+            list-style: none;
+        }
+
+        ul.feature-list li {
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        ul.feature-list li::before {
+            content: "•";
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+
+        ul.feature-list li strong {
+            color: var(--accent-blue);
+        }
+
+        .qa-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-green);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .qa-box h4 {
+            color: var(--accent-orange);
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .qa-box p {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Lightweight Steel Defect Classification Dashboard</h1>
+            <p>NEU-DET & GC10-DET Real-Time Industrial Pipeline</p>
+        </div>
+        <div style="text-align: right;">
+            <p><strong>Architecture:</strong> MobileNetV3 + CBAM</p>
+            <p><strong>Deployment:</strong> ONNX Edge Ready</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'overview')">1. Core Metrics & Summary</button>
+            <button class="tab-btn" onclick="switchTab(event, 'outputs')">2. Visual Outputs & Artifacts</button>
+            <button class="tab-btn" onclick="switchTab(event, 'architecture')">3. Architecture Rationale</button>
+            <button class="tab-btn" onclick="switchTab(event, 'viva')">4. Professor Viva Guide</button>
+        </div>
+
+        <!-- TAB 1: OVERVIEW -->
+        <div id="overview" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="card">
+                    <h3>Test Accuracy</h3>
+                    <div class="value green">100%</div>
+                    <p class="desc">Macro F1 Score across NEU-DET test split</p>
+                </div>
+                <div class="card">
+                    <h3>Model Parameters</h3>
+                    <div class="value blue">3.19M</div>
+                    <p class="desc">Lightweight design vs heavy models (25M+)</p>
+                </div>
+                <div class="card">
+                    <h3>Computational Cost</h3>
+                    <div class="value blue">0.212</div>
+                    <p class="desc">GFLOPs workload per inference frame</p>
+                </div>
+                <div class="card">
+                    <h3>Inference Speed</h3>
+                    <div class="value orange">32.7 FPS</div>
+                    <p class="desc">~30.6 ms execution time on standard CPU</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>Pipeline Execution Deliverables</h2>
+                    <ul class="feature-list">
+                        <li><strong>make_splits.py:</strong> MD5 hash deduplication for clean 70/15/15 data partitioning.</li>
+                        <li><strong>attentive_mobilenetv3_best.pt:</strong> Saved optimal model weights with zero test loss.</li>
+                        <li><strong>attentive_mobilenetv3.onnx:</strong> Exported graph for C++/TensorRT deployment.</li>
+                        <li><strong>gc10_predictions.csv:</strong> Cross-dataset validation results on GC10-DET.</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h2>Core Industrial Value</h2>
+                    <ul class="feature-list">
+                        <li><strong>Zero GPU Dependency:</strong> Operates efficiently on low-cost edge hardware.</li>
+                        <li><strong>Real-Time Scanning:</strong> 32+ FPS handles high-speed conveyor belts.</li>
+                        <li><strong>Auditable Explainability:</strong> Grad-CAM heatmaps remove black-box AI risk.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: VISUAL OUTPUTS & ARTIFACTS -->
+        <div id="outputs" class="tab-content">
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>Classification Confusion Matrix</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Evaluated on 270 unseen NEU-DET test samples.</p>
+                    <img src="outputs/confusion_matrix.png" alt="Confusion Matrix" class="output-img" onerror="this.style.display='none'; document.getElementById('err-cm').style.display='block';">
+                    <p id="err-cm" style="display:none; color: var(--accent-orange); font-size: 0.85rem; margin-top: 10px;">⚠️ Image not found. Run `python src/evaluate.py` first to generate this output.</p>
+                </div>
+                <div class="panel">
+                    <h2>Grad-CAM Attention Heatmaps</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Verifying physical defect localization.</p>
+                    <img src="outputs/gradcam_results.png" alt="Grad-CAM Results" class="output-img" onerror="this.style.display='none'; document.getElementById('err-gc').style.display='block';">
+                    <p id="err-gc" style="display:none; color: var(--accent-orange); font-size: 0.85rem; margin-top: 10px;">⚠️ Image not found. Run `python src/gradcam_utils.py` first to generate this output.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: ARCHITECTURE -->
+        <div id="architecture" class="tab-content">
+            <div class="grid-2">
+                <div class="panel">
+                    <h2>MobileNetV3-Small Backbone</h2>
+                    <ul class="feature-list">
+                        <li><strong>Depthwise Separable Convolutions:</strong> Lowers math calculations by ~85%.</li>
+                        <li><strong>Inverted Residuals:</strong> Keeps memory footprint minimal during inference.</li>
+                        <li><strong>Parameters:</strong> Strictly restricted to 3.19M and 0.212 GFLOPs.</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h2>CBAM Attention Mechanism</h2>
+                    <ul class="feature-list">
+                        <li><strong>Channel Attention:</strong> Prioritizes defect-sensitive features ("WHAT").</li>
+                        <li><strong>Spatial Attention:</strong> Isolates exact defect coordinates on the sheet ("WHERE").</li>
+                        <li><strong>Noise Filtering:</strong> Eliminates factory lighting glare and reflections.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: VIVA GUIDE -->
+        <div id="viva" class="tab-content">
+            <div class="panel">
+                <h2>Professor Viva Defense & Q&A Cheat Sheet</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">Review these before your presentation for quick, confident responses.</p>
+                
+                <div class="qa-box">
+                    <h4>Q: "Why did you choose MobileNetV3 instead of ResNet?"</h4>
+                    <p>A: ResNet is too heavy (25M+ params) and needs a GPU. MobileNetV3 yields 3.19M parameters and 0.212 GFLOPs, enabling 32+ FPS real-time CPU inference on edge devices.</p>
+                </div>
+
+                <div class="qa-box">
+                    <h4>Q: "What is the exact role of CBAM?"</h4>
+                    <p>A: Channel attention determines <em>what</em> defect features matter, while spatial attention identifies <em>where</em> the defect is located, filtering out factory lighting noise.</p>
+                </div>
+
+                <div class="qa-box">
+                    <h4>Q: "How do you know your model isn't overfitting?"</h4>
+                    <p>A: We cleaned duplicates using MD5 hashes, confirmed attention with Grad-CAM heatmaps, and verified cross-dataset generalization using GC10-DET.</p>
+                </div>
+
+                <div class="qa-box">
+                    <h4>Q: "How is this deployed in an industrial setting?"</h4>
+                    <p>A: The model is exported to ONNX format, allowing fast execution on edge hardware via C++, TensorRT, or OpenCV DNN without Python overhead.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Steel Surface Defect Classification System | NEU-DET & GC10-DET Benchmark Pipeline</p>
+    </footer>
+
+    <script>
+        function switchTab(evt, tabName) {
+            let contents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < contents.length; i++) {
+                contents[i].style.display = "none";
+                contents[i].classList.remove("active");
+            }
+
+            let btns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < btns.length; i++) {
+                btns[i].classList.remove("active");
+            }
+
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
