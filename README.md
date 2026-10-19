@@ -33,8 +33,6 @@ steel-defect-detection/
 ├── NEU-DET/                # NEU Surface Defect Database
 ├── GC10-DET/               # Cross-validation dataset
 ├── outputs/                # Generated model weights, logs, and plots
-│   ├── attentive_mobilenetv3_best.pt
-│   ├── attentive_mobilenetv3.onnx
 │   ├── confusion_matrix.png
 │   ├── gradcam_results.png
 │   └── gc10_predictions.csv
